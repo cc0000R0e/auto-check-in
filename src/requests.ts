@@ -8,8 +8,20 @@ const baseHeaders: HeadersInit = {
   'Accept-Language': 'zh-CN,en-US;qbaseHeaders=0.7,en;q=0.3',
 };
 
-const request = <T = any>(url: RequestInfo, init?: RequestInit): Promise<T> =>
-  fetch(url, init).then((data) => data.json());
+const request = async <T = any>(url: RequestInfo, init?: RequestInit): Promise<T> => {
+  const label = `${init?.method ?? 'GET'} ${new URL(
+    typeof url === 'string' ? url : 'url' in url ? url.url : url.href
+  ).pathname}`;
+  try {
+    const response = await fetch(url, { ...init, timeout: 15000 });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    throw new Error(`${label}: ${error instanceof Error ? error.message : error}`);
+  }
+};
 
 export interface IBasicSignInfo {
   courseId: number;

@@ -69,7 +69,8 @@ const getOpenId = async ({ devtools, openIdSet }) => {
             await utils_1.sleep(consts_1.config.interval);
         }
         catch (err) {
-            console.warn('Error:', err);
+            console.warn('Error:', err instanceof Error ? err.message : err);
+            await utils_1.sleep(consts_1.config.interval);
         }
     }
 })();

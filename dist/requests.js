@@ -12,7 +12,19 @@ const baseHeaders = {
     Accept: '*/*',
     'Accept-Language': 'zh-CN,en-US;qbaseHeaders=0.7,en;q=0.3',
 };
-const request = (url, init) => node_fetch_1.default(url, init).then((data) => data.json());
+const request = async (url, init) => {
+    const label = `${init?.method ?? 'GET'} ${new URL(typeof url === 'string' ? url : 'url' in url ? url.url : url.href).pathname}`;
+    try {
+        const response = await node_fetch_1.default(url, { ...init, timeout: 15000 });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return await response.json();
+    }
+    catch (error) {
+        throw new Error(`${label}: ${error instanceof Error ? error.message : error}`);
+    }
+};
 exports.activeSign = (openId) => request('https://v18.teachermate.cn/wechat-api/v1/class-attendance/student/active_signs', {
     headers: {
         ...baseHeaders,

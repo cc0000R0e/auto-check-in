@@ -72,7 +72,8 @@ const getOpenId = async ({ devtools, openIdSet }: IContext) => {
       await signOnce(ctx);
       await sleep(config.interval);
     } catch (err) {
-      console.warn('Error:', err);
+      console.warn('Error:', err instanceof Error ? err.message : err);
+      await sleep(config.interval);
     }
   }
 })();

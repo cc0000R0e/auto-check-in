@@ -31,7 +31,8 @@ exports.signOnce = async (ctx) => {
                 utils_1.sendNotificaition(`WARNING: ${name} QR sign-in is going on!`);
                 ctx.qrSign?.destory();
                 ctx.qrSign = new QRSign_1.QRSign(ctx, { courseId, signId });
-                ctx.qrSign.start().then((result) => {
+                const qrSign = ctx.qrSign;
+                qrSign.start().then((result) => {
                     ctx.signedIdSet.add(signId);
                     console.log(`QRSign:: result`, result);
                     if (!consts_1.config.devtools) {
@@ -40,7 +41,14 @@ exports.signOnce = async (ctx) => {
                         console.warn(prompt);
                         ctx.openId = '';
                     }
-                    ctx.qrSign?.destory();
+                    qrSign.destory();
+                }).catch((error) => {
+                    console.warn(`二维码连接失败：${error instanceof Error ? error.message : error}`);
+                    qrSign.destory();
+                    if (ctx.qrSign === qrSign) {
+                        ctx.qrSign = undefined;
+                        ctx.lastSignId = 0;
+                    }
                 });
             }
             else {
@@ -58,13 +66,13 @@ exports.signOnce = async (ctx) => {
                     console.log(data);
                 })
                     .catch((e) => {
-                    console.log(e);
+                    console.warn(e instanceof Error ? e.message : e);
                     utils_1.sendNotificaition(`Error: failed to ${name} sign in. See output plz.`);
                 });
             }
         }
     })
         .catch((e) => {
-        console.log(e);
+        console.warn(e instanceof Error ? e.message : e);
     });
 };
